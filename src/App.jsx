@@ -6,8 +6,9 @@ function App() {
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [evolutionChain, setEvolutionChain] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null);  
   const [searchTerm, setSearchTerm] = useState("");
+  const [create,setCreate] = useState(null);
 const filteredPokemons = pokemons.filter(pokemon =>
   pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
 );
@@ -78,81 +79,87 @@ const filteredPokemons = pokemons.filter(pokemon =>
       </h1>
 
 {selectedPokemon && (
-        <div
-          className="z-50 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl h-[700px] w-[800px] border border-gray-100 "
-          style={{ opacity: 1, transform: "translateY(0)" }}
-        >
-          <button
-            onClick={() => setSelectedPokemon(null)}
-            className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition-all duration-200 shadow-md"
+  <div
+className="z-50 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+bg-white rounded-2xl shadow-2xl border border-gray-100
+w-[90vw] max-w-xl min-h-[520px] p-4 sm:p-6"
+  >
+    <button
+      onClick={() => setSelectedPokemon(null)}
+      className="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full hover:bg-red-700 transition"
+    >
+      ✕
+    </button>
+
+    <h2 className="text-xl sm:text-2xl font-bold capitalize text-center text-indigo-800 mb-3">
+      {selectedPokemon.name} #{String(selectedPokemon.id).padStart(3, "0")}
+    </h2>
+
+    <img
+      src={
+        selectedPokemon.sprites.other["official-artwork"].front_default ||
+        selectedPokemon.sprites.front_default
+      }
+      alt={selectedPokemon.name}
+      className="w-24 h-24 sm:w-32 sm:h-32 mx-auto my-2 rounded-full bg-gray-50 p-2"
+    />
+
+    <div className="text-center mb-4">
+      <h3 className="font-semibold text-lg text-indigo-700 mb-2">Type(s)</h3>
+      <div className="flex justify-center gap-2 flex-wrap">
+        {selectedPokemon.types.map((t, index) => (
+          <span
+            key={index}
+            className="bg-indigo-100 text-indigo-800 text-sm font-semibold px-3 py-1 rounded-full"
           >
-            Fermer ✕
-          </button>
+            {t.type.name}
+          </span>
+        ))}
+      </div>
+    </div>
 
-          <h2 className="text-4xl font-bold capitalize text-center text-indigo-800 mb-6">
-            {selectedPokemon.name} #{String(selectedPokemon.id).padStart(3, "0")}
-          </h2>
-          <img
-            src={
-              selectedPokemon.sprites.other["official-artwork"].front_default ||
-              selectedPokemon.sprites.front_default
-            }
-            alt={selectedPokemon.name}
-            className="w-40 h-40 mx-auto my-4 rounded-full bg-gray-50 p-4"
-          />
+    <div className="grid grid-cols-2 gap-4 text-sm">
+      <div>
+        <h3 className="font-semibold text-indigo-700 mb-2">Stats</h3>
+        <ul className="space-y-1">
+          {selectedPokemon.stats.slice(0, 4).map((stat) => (
+            <li
+              key={stat.stat.name}
+              className="flex justify-between bg-gray-50 px-2 py-1 rounded"
+            >
+              <span className="capitalize">{stat.stat.name}</span>
+              <span className="font-semibold text-indigo-600">
+                {stat.base_stat}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-          <div className="text-center mb-6">
-            <h3 className="font-bold text-2xl text-indigo-700 mb-3">Type(s)</h3>
-            <div className="flex justify-center gap-2">
-              {selectedPokemon.types.map((t, index) => (
-                <span
-                  key={index}
-                  className="inline-block bg-indigo-100 text-indigo-800 font-semibold px-4 py-1 rounded-full"
-                >
-                  {t.type.name}
+      <div>
+        <h3 className="font-semibold text-indigo-700 mb-2">Évolutions</h3>
+        {evolutionChain.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            {evolutionChain.slice(0, 3).map((evo) => (
+              <div key={evo.name} className="flex items-center gap-2">
+                <img
+                  src={evo.image}
+                  alt={evo.name}
+                  className="w-10 h-10 rounded-full bg-gray-50 p-1"
+                />
+                <span className="capitalize text-indigo-600 font-semibold text-sm">
+                  {evo.name}
                 </span>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="font-bold text-2xl text-indigo-700 mb-3">Statistiques</h3>
-              <ul className="space-y-2">
-                {selectedPokemon.stats.map((stat) => (
-                  <li
-                    key={stat.stat.name}
-                    className="flex justify-between items-center bg-gray-50 p-2 rounded-lg"
-                  >
-                    <span className="capitalize text-gray-700">{stat.stat.name}</span>
-                    <span className="font-semibold text-indigo-600">{stat.base_stat}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-2xl text-indigo-700 mb-3">Évolutions</h3>
-              {evolutionChain.length > 0 ? (
-                <div className="flex flex-col items-center gap-4">
-                  {evolutionChain.map((evo) => (
-                    <div key={evo.name} className="flex items-center gap-2">
-                      <img
-                        src={evo.image}
-                        alt={evo.name}
-                        className="w-16 h-16 rounded-full bg-gray-50 p-2"
-                      />
-                      <span className="capitalize font-semibold text-indigo-600">{evo.name}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">Aucune évolution disponible.</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+        ) : (
+          <p className="text-gray-500 text-sm">Aucune évolution</p>
+        )}
+      </div>
+    </div>
+  </div>
+)}
 
 
 <div className="">
